@@ -11,3 +11,4 @@ clap = { version = "4.4.6", features = ["derive", "env"] }
 [dev-dependencies]
 assert_cmd = "2.0.12"
 predicates = "3.0.4"
+rand = "0.8.5"
