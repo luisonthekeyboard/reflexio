@@ -21,42 +21,40 @@ fn runs() {
 
 
 #[test]
-fn compare_with_gnu_echo() {
+fn compare_with_system_echo() {
 
     // generate test case
-    let mut cmd = Command::new("echo");
-
     let skip_newline = thread_rng().gen_bool(0.5);
-
-    if skip_newline {
-        cmd.arg("-n");
-    }
-
     let arg = random_string();
-    cmd.arg(&arg);
 
-    assert!(cmd.output().is_ok());
-    let output = cmd.output().unwrap();
-    let string_out = String::from_utf8(output.stdout).unwrap();
-
-    let expected_output = if skip_newline { format!("{}", &arg) } else { format!("{}{}", &arg, "\n") };
-
-    assert_eq!(&expected_output, &string_out);
-
-    /////////////////////////////////////////////////
-
-    let mut assert_cmd = Assert_Command::cargo_bin("echo").unwrap();
+    // run the system version
+    let mut system_cmd = Command::new("echo");
     if skip_newline {
-        assert_cmd.arg("-n");
+        system_cmd.arg("-n");
     }
-    assert_cmd.arg(&arg);
+    system_cmd.arg(&arg);
 
-    assert!(assert_cmd.output().is_ok());
-    let assert_output = assert_cmd.output().unwrap();
+    assert!(system_cmd.output().is_ok(), "Calling system command failed.");
+
+    let system_cmd_output = String::from_utf8(system_cmd.output().unwrap().stdout).unwrap();
+    let expected_output = if skip_newline { format!("{}",&arg) } else { format!("{}{}", &arg, "\n") };
+
+    assert_eq!(expected_output, system_cmd_output, "Test case failed for system command");
+
+    // run the local version under test
+
+    let mut cmd_under_test = Assert_Command::cargo_bin("echo").unwrap();
+    if skip_newline {
+        cmd_under_test.arg("-n");
+    }
+    cmd_under_test.arg(&arg);
+
+    assert!(cmd_under_test.output().is_ok(), "Calling command under test failed");
+
+    let assert_output = cmd_under_test.output().unwrap();
     let assert_stdout = String::from_utf8(assert_output.stdout).unwrap();
 
-    assert_eq!(&assert_stdout, &string_out);
-
+    assert_eq!(&assert_stdout, &system_cmd_output, "Command under test didn't produce the same output as the system command");
 }
 
 fn random_string() -> String {
