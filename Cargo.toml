@@ -1,9 +1,9 @@
 [package]
-name = "echo"
+name = "reflexio"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Luís Rodrigues Soares <luis@luis.rs>"]
+description = "A minimal rust implementation of echo, from coreutils"
 
 [dependencies]
 clap = { version = "4.4.6", features = ["derive", "env"] }
